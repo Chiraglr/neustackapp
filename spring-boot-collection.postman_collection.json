@@ -1,0 +1,600 @@
+{
+  "info": {
+    "_postman_id": "a9d7b8e1-5c32-4e8f-9a1b-7c4d2e0f8a3d",
+    "name": "Neustack E-Commerce Service API",
+    "description": "Postman Collection for Spring Boot E-Commerce Service covering Catalog, Cart, Coupon, and Order Checkout modules.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "CatalogController",
+      "description": "Endpoints related to product catalog and stock availability.",
+      "item": [
+        {
+          "name": "View Product Inventory Details",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_ids\": [\n    1,\n    2,\n    3\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/product_inventory_view",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "product_inventory_view"
+              ]
+            },
+            "description": "Retrieve product pricing and current available inventory for specified product IDs."
+          },
+          "response": [
+            {
+              "name": "200 OK - Product Inventory Details",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"product_ids\": [1, 2, 3]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/product_inventory_view",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "product_inventory_view"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "[\n  {\n    \"id\": 1,\n    \"name\": \"Samsung\",\n    \"current_unit_price\": 1000.00,\n    \"available_inventory\": 10\n  },\n  {\n    \"id\": 2,\n    \"name\": \"OnePlus\",\n    \"current_unit_price\": 2000.00,\n    \"available_inventory\": 10\n  },\n  {\n    \"id\": 3,\n    \"name\": \"Apple 17\",\n    \"current_unit_price\": 3000.00,\n    \"available_inventory\": 10\n  }\n]"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CartController",
+      "description": "Endpoints for creating and managing shopping cart items.",
+      "item": [
+        {
+          "name": "Create Cart",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": 1,\n  \"quantity\": 2\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/carts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "carts"
+              ]
+            },
+            "description": "Create a new cart, optionally specifying an initial product and quantity."
+          },
+          "response": [
+            {
+              "name": "201 Created - Cart Created",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"product_id\": 1,\n  \"quantity\": 2\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/carts",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "carts"
+                  ]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"id\": \"e4d7a8b2-5c91-4e76-b3a1-9d2e1b4f8c6e\",\n  \"created_at\": \"2026-10-30T01:00:00\",\n  \"items\": [\n    {\n      \"product_id\": 1,\n      \"name\": \"Samsung\",\n      \"quantity\": 2,\n      \"unit_price\": 1000.00,\n      \"total_price\": 2000.00\n    }\n  ],\n  \"total_price\": 2000.00\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Cart by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/carts/:cartId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "carts",
+                ":cartId"
+              ],
+              "variable": [
+                {
+                  "key": "cartId",
+                  "value": "e4d7a8b2-5c91-4e76-b3a1-9d2e1b4f8c6e",
+                  "description": "UUID of the shopping cart"
+                }
+              ]
+            },
+            "description": "Retrieve cart details, line items, item pricing, and aggregate cart total."
+          },
+          "response": [
+            {
+              "name": "200 OK - Cart Details",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/carts/:cartId",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "carts",
+                    ":cartId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "cartId",
+                      "value": "e4d7a8b2-5c91-4e76-b3a1-9d2e1b4f8c6e"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"id\": \"e4d7a8b2-5c91-4e76-b3a1-9d2e1b4f8c6e\",\n  \"created_at\": \"2026-10-30T01:00:00\",\n  \"items\": [\n    {\n      \"product_id\": 1,\n      \"name\": \"Samsung\",\n      \"quantity\": 2,\n      \"unit_price\": 1000.00,\n      \"total_price\": 2000.00\n    }\n  ],\n  \"total_price\": 2000.00\n}"
+            }
+          ]
+        },
+        {
+          "name": "Add Item to Cart",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": 2,\n  \"quantity\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/carts/:cartId/items",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "carts",
+                ":cartId",
+                "items"
+              ],
+              "variable": [
+                {
+                  "key": "cartId",
+                  "value": "e4d7a8b2-5c91-4e76-b3a1-9d2e1b4f8c6e",
+                  "description": "UUID of the target shopping cart"
+                }
+              ]
+            },
+            "description": "Add an item or increment its quantity in the specified cart, checking available inventory."
+          },
+          "response": [
+            {
+              "name": "200 OK - Updated Cart",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"product_id\": 2,\n  \"quantity\": 1\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/carts/:cartId/items",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "carts",
+                    ":cartId",
+                    "items"
+                  ],
+                  "variable": [
+                    {
+                      "key": "cartId",
+                      "value": "e4d7a8b2-5c91-4e76-b3a1-9d2e1b4f8c6e"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"id\": \"e4d7a8b2-5c91-4e76-b3a1-9d2e1b4f8c6e\",\n  \"created_at\": \"2026-10-30T01:00:00\",\n  \"items\": [\n    {\n      \"product_id\": 1,\n      \"name\": \"Samsung\",\n      \"quantity\": 2,\n      \"unit_price\": 1000.00,\n      \"total_price\": 2000.00\n    },\n    {\n      \"product_id\": 2,\n      \"name\": \"OnePlus\",\n      \"quantity\": 1,\n      \"unit_price\": 2000.00,\n      \"total_price\": 2000.00\n    }\n  ],\n  \"total_price\": 4000.00\n}"
+            }
+          ]
+        },
+        {
+          "name": "Remove Item from Cart",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/carts/:cartId/items/:productId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "carts",
+                ":cartId",
+                "items",
+                ":productId"
+              ],
+              "variable": [
+                {
+                  "key": "cartId",
+                  "value": "e4d7a8b2-5c91-4e76-b3a1-9d2e1b4f8c6e",
+                  "description": "UUID of the shopping cart"
+                },
+                {
+                  "key": "productId",
+                  "value": "1",
+                  "description": "ID of the product to decrement/remove"
+                }
+              ]
+            },
+            "description": "Decrement the quantity of the product by 1 in the cart; removes the item row completely if quantity reaches 0."
+          },
+          "response": [
+            {
+              "name": "200 OK - Updated Cart After Removal",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/carts/:cartId/items/:productId",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "carts",
+                    ":cartId",
+                    "items",
+                    ":productId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "cartId",
+                      "value": "e4d7a8b2-5c91-4e76-b3a1-9d2e1b4f8c6e"
+                    },
+                    {
+                      "key": "productId",
+                      "value": "1"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"id\": \"e4d7a8b2-5c91-4e76-b3a1-9d2e1b4f8c6e\",\n  \"created_at\": \"2026-10-30T01:00:00\",\n  \"items\": [\n    {\n      \"product_id\": 1,\n      \"name\": \"Samsung\",\n      \"quantity\": 1,\n      \"unit_price\": 1000.00,\n      \"total_price\": 1000.00\n    }\n  ],\n  \"total_price\": 1000.00\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CouponController",
+      "description": "Endpoints for discount coupon inspection and redemption status.",
+      "item": [
+        {
+          "name": "Get Active Coupons",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/coupons",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "coupons"
+              ]
+            },
+            "description": "Retrieve all active, unredeemed discount coupons available for use."
+          },
+          "response": [
+            {
+              "name": "200 OK - Active Coupons List",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/coupons",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "coupons"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "[\n  {\n    \"id\": 1,\n    \"code\": \"DISC10\",\n    \"discount_percentage\": 10,\n    \"max_limit\": 500,\n    \"is_used\": false\n  }\n]"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "OrderCheckoutController",
+      "description": "Endpoints for performing order checkout and retrieving order history.",
+      "item": [
+        {
+          "name": "Checkout Cart",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cart_id\": \"e4d7a8b2-5c91-4e76-b3a1-9d2e1b4f8c6e\",\n  \"coupon_id\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/orders",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders"
+              ]
+            },
+            "description": "Validates cart, reserves and deducts inventory under pessimistic lock, marks coupon as used (if provided), creates the order, and clears the cart."
+          },
+          "response": [
+            {
+              "name": "201 Created - Order Completed",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"cart_id\": \"e4d7a8b2-5c91-4e76-b3a1-9d2e1b4f8c6e\",\n  \"coupon_id\": 1\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/orders",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "orders"
+                  ]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"order_id\": \"8c258d4a-912b-426c-829d-47d092d6e321\",\n  \"created_at\": \"2026-10-30T01:05:00\",\n  \"items\": [\n    {\n      \"product_id\": 1,\n      \"name\": \"Samsung\",\n      \"quantity\": 2,\n      \"purchased_unit_price\": 1000.00,\n      \"total_price\": 2000.00\n    }\n  ],\n  \"gross_amount\": 2000.00,\n  \"discount_amount\": 200.00,\n  \"discount_coupon_id\": 1,\n  \"total_amount\": 1800.00,\n  \"generated_coupon_code\": \"REWARD10-A1B2C3D4\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Order by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/orders/:orderId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders",
+                ":orderId"
+              ],
+              "variable": [
+                {
+                  "key": "orderId",
+                  "value": "8c258d4a-912b-426c-829d-47d092d6e321",
+                  "description": "UUID of the completed order"
+                }
+              ]
+            },
+            "description": "Retrieve comprehensive details of a completed order, including line items, historical prices, and discount information."
+          },
+          "response": [
+            {
+              "name": "200 OK - Order Details",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/orders/:orderId",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "orders",
+                    ":orderId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "orderId",
+                      "value": "8c258d4a-912b-426c-829d-47d092d6e321"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"order_id\": \"8c258d4a-912b-426c-829d-47d092d6e321\",\n  \"created_at\": \"2026-10-30T01:05:00\",\n  \"items\": [\n    {\n      \"product_id\": 1,\n      \"name\": \"Samsung\",\n      \"quantity\": 2,\n      \"purchased_unit_price\": 1000.00,\n      \"total_price\": 2000.00\n    }\n  ],\n  \"gross_amount\": 2000.00,\n  \"discount_amount\": 200.00,\n  \"discount_coupon_id\": 1,\n  \"total_amount\": 1800.00,\n  \"generated_coupon_code\": \"REWARD10-A1B2C3D4\"\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
