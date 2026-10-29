@@ -120,7 +120,6 @@ class OrderCheckoutServiceTest {
         verify(discountCouponRepository).save(argThat(c ->
                 c.getDiscountPercentage() == 10 && c.getMaxLimit() == 100 && !c.getIsUsed() && c.getCode().startsWith("REWARD10-")
         ));
-        assertThat(response.getGeneratedCouponCode()).isNotNull().startsWith("REWARD10-");
 
         // Verify cart cleaned up
         verify(cartItemRepository).deleteAll(List.of(cartItem1));
@@ -151,7 +150,6 @@ class OrderCheckoutServiceTest {
         verify(discountCouponRepository).save(argThat(c ->
                 c.getDiscountPercentage() == 10 && c.getMaxLimit() == 100 && !c.getIsUsed()
         ));
-        assertThat(response.getGeneratedCouponCode()).isNotNull().startsWith("REWARD10-");
     }
 
     @Test

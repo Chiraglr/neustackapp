@@ -34,8 +34,8 @@ public class OrderCheckoutService {
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
 
-    @PersistenceContext
-    private EntityManager entityManager;
+    @Value("${ecommerce.rewards.discount-generation-factor:5}")
+    private int discountGenerationFactor = 5;
 
     @Value("${ecommerce.rewards.discount-percentage:10}")
     private int rewardDiscountPercentage = 10;
@@ -180,18 +180,20 @@ public class OrderCheckoutService {
         cartItemRepository.deleteAll(cartItems);
         cartRepository.delete(cart);
 
-        // Generate a reward coupon (10% discount, max limit up to 100)
-        int rewardPercentage = rewardDiscountPercentage;
-        int rewardMax = rewardMaxLimit;
-        String generatedCouponCode = rewardCodePrefix + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+        if (orderRepository.count() / discountGenerationFactor > discountCouponRepository.count()) {
+            // Generate a reward coupon (10% discount, max limit up to 100)
+            int rewardPercentage = rewardDiscountPercentage;
+            int rewardMax = rewardMaxLimit;
+            String generatedCouponCode = rewardCodePrefix + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
 
-        DiscountCoupon rewardCoupon = DiscountCoupon.builder()
-                .code(generatedCouponCode)
-                .discountPercentage(rewardPercentage)
-                .maxLimit(rewardMax)
-                .isUsed(false)
-                .build();
-        discountCouponRepository.save(rewardCoupon);
+            DiscountCoupon rewardCoupon = DiscountCoupon.builder()
+                    .code(generatedCouponCode)
+                    .discountPercentage(rewardPercentage)
+                    .maxLimit(rewardMax)
+                    .isUsed(false)
+                    .build();
+            discountCouponRepository.save(rewardCoupon);
+        }
 
         return OrderResponse.builder()
                 .orderId(savedOrder.getOrderId())
@@ -201,7 +203,6 @@ public class OrderCheckoutService {
                 .discountAmount(discountAmount)
                 .discountCouponId(appliedCouponId)
                 .totalAmount(netTotal)
-                .generatedCouponCode(generatedCouponCode)
                 .build();
     }
 

@@ -36,7 +36,4 @@ public class OrderResponse {
 
     @JsonProperty("total_amount")
     private BigDecimal totalAmount;
-
-    @JsonProperty("generated_coupon_code")
-    private String generatedCouponCode;
 }

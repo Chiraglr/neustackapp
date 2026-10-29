@@ -1,6 +1,7 @@
 package org.example.neustackapp.controller;
 
 import org.example.neustackapp.dto.CouponResponse;
+import org.example.neustackapp.dto.GenerateCouponRequest;
 import org.example.neustackapp.service.CouponService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -43,5 +45,31 @@ class CouponControllerTest {
         assertThat(response.getBody()).isNotNull().hasSize(1);
         assertThat(response.getBody().get(0).getCode()).isEqualTo("DISC10");
         verify(couponService).getActiveCoupons();
+    }
+
+    @Test
+    void generateCoupon_whenValid_returns201Created() {
+        GenerateCouponRequest request = GenerateCouponRequest.builder()
+                .code("SUMMER20")
+                .discountPercentage(20)
+                .maxLimit(200)
+                .build();
+
+        CouponResponse created = CouponResponse.builder()
+                .id(5)
+                .code("SUMMER20")
+                .discountPercentage(20)
+                .maxLimit(200)
+                .isUsed(false)
+                .build();
+
+        when(couponService.generateCoupon(any(GenerateCouponRequest.class))).thenReturn(created);
+
+        ResponseEntity<CouponResponse> response = couponController.generateCoupon(request);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().getCode()).isEqualTo("SUMMER20");
+        verify(couponService).generateCoupon(request);
     }
 }
