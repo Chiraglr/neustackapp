@@ -595,6 +595,137 @@
           ]
         }
       ]
+    },
+    {
+      "name": "AdminController",
+      "description": "Admin endpoints for coupon management and business summary.",
+      "item": [
+        {
+          "name": "Generate Coupon (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"SUMMER20\",\n  \"discount_percentage\": 20,\n  \"max_limit\": 200\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/coupons",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "coupons"
+              ]
+            },
+            "description": "Admin: Manually create and insert a new discount coupon. Returns 201 on success, 409 if code already exists."
+          },
+          "response": [
+            {
+              "name": "201 Created - Coupon Generated",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"code\": \"SUMMER20\",\n  \"discount_percentage\": 20,\n  \"max_limit\": 200\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/admin/coupons",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "coupons"
+                  ]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"id\": 5,\n  \"code\": \"SUMMER20\",\n  \"discount_percentage\": 20,\n  \"max_limit\": 200,\n  \"is_used\": false\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Admin Summary",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/summary",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "summary"
+              ]
+            },
+            "description": "Admin: Returns an aggregate business summary including products sold per product, gross revenue, total discounts, net revenue, coupon statistics, and total orders."
+          },
+          "response": [
+            {
+              "name": "200 OK - Admin Summary",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/summary",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "summary"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"products_sold\": [\n    {\n      \"product_id\": 1,\n      \"product_name\": \"Samsung\",\n      \"quantity_sold\": 5\n    },\n    {\n      \"product_id\": 2,\n      \"product_name\": \"OnePlus\",\n      \"quantity_sold\": 3\n    }\n  ],\n  \"gross_revenue\": 11000.0,\n  \"total_discounts\": 200.0,\n  \"net_revenue\": 10800.0,\n  \"coupons_generated\": 10,\n  \"coupons_available\": 7,\n  \"coupons_redeemed\": 3,\n  \"total_orders\": 4\n}"
+            }
+          ]
+        }
+      ]
     }
   ]
 }
