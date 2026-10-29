@@ -116,6 +116,12 @@ class OrderCheckoutServiceTest {
         verify(orderRepository).save(any(Order.class));
         verify(orderItemRepository).save(any(OrderItem.class));
 
+        // Verify new reward coupon was generated with 10% and max limit 100
+        verify(discountCouponRepository).save(argThat(c ->
+                c.getDiscountPercentage() == 10 && c.getMaxLimit() == 100 && !c.getIsUsed() && c.getCode().startsWith("REWARD10-")
+        ));
+        assertThat(response.getGeneratedCouponCode()).isNotNull().startsWith("REWARD10-");
+
         // Verify cart cleaned up
         verify(cartItemRepository).deleteAll(List.of(cartItem1));
         verify(cartRepository).delete(cart);
@@ -142,6 +148,10 @@ class OrderCheckoutServiceTest {
         // Coupon marked as used
         assertThat(coupon1.getIsUsed()).isTrue();
         verify(discountCouponRepository).save(coupon1);
+        verify(discountCouponRepository).save(argThat(c ->
+                c.getDiscountPercentage() == 10 && c.getMaxLimit() == 100 && !c.getIsUsed()
+        ));
+        assertThat(response.getGeneratedCouponCode()).isNotNull().startsWith("REWARD10-");
     }
 
     @Test

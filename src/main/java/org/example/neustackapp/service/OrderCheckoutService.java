@@ -1,5 +1,8 @@
 package org.example.neustackapp.service;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.PersistenceException;
 import lombok.RequiredArgsConstructor;
 import org.example.neustackapp.dto.CheckoutRequest;
 import org.example.neustackapp.dto.OrderItemResponse;
@@ -9,6 +12,7 @@ import org.example.neustackapp.exception.InvalidCartOperationException;
 import org.example.neustackapp.exception.ResourceNotFoundException;
 import org.example.neustackapp.model.*;
 import org.example.neustackapp.repository.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +33,18 @@ public class OrderCheckoutService {
     private final DiscountCouponRepository discountCouponRepository;
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
+
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    @Value("${ecommerce.rewards.discount-percentage:10}")
+    private int rewardDiscountPercentage = 10;
+
+    @Value("${ecommerce.rewards.max-limit:100}")
+    private int rewardMaxLimit = 100;
+
+    @Value("${ecommerce.rewards.code-prefix:REWARD10-}")
+    private String rewardCodePrefix = "REWARD10-";
 
     @Transactional
     public OrderResponse checkout(CheckoutRequest request) {
@@ -138,7 +154,6 @@ public class OrderCheckoutService {
 
         // Persist order
         Order order = Order.builder()
-                .orderId(UUID.randomUUID())
                 .totalAmount(netTotal)
                 .discountCodeApplied(appliedCouponId)
                 .createdAt(LocalDateTime.now())
@@ -165,6 +180,19 @@ public class OrderCheckoutService {
         cartItemRepository.deleteAll(cartItems);
         cartRepository.delete(cart);
 
+        // Generate a reward coupon (10% discount, max limit up to 100)
+        int rewardPercentage = rewardDiscountPercentage;
+        int rewardMax = rewardMaxLimit;
+        String generatedCouponCode = rewardCodePrefix + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+
+        DiscountCoupon rewardCoupon = DiscountCoupon.builder()
+                .code(generatedCouponCode)
+                .discountPercentage(rewardPercentage)
+                .maxLimit(rewardMax)
+                .isUsed(false)
+                .build();
+        discountCouponRepository.save(rewardCoupon);
+
         return OrderResponse.builder()
                 .orderId(savedOrder.getOrderId())
                 .createdAt(savedOrder.getCreatedAt())
@@ -173,6 +201,7 @@ public class OrderCheckoutService {
                 .discountAmount(discountAmount)
                 .discountCouponId(appliedCouponId)
                 .totalAmount(netTotal)
+                .generatedCouponCode(generatedCouponCode)
                 .build();
     }
 

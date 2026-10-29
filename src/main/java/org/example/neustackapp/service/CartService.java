@@ -151,9 +151,8 @@ public class CartService {
 
     @Transactional
     public CartResponse removeItemFromCart(UUID cartId, Integer productId) {
-        if (!cartRepository.existsById(cartId)) {
-            throw new ResourceNotFoundException("Cart with id " + cartId + " not found.");
-        }
+        Cart cart = cartRepository.findById(cartId)
+                .orElseThrow(() -> new ResourceNotFoundException("Cart with id " + cartId + " not found."));
 
         CartItem cartItem = cartItemRepository.findByIdCartIdAndIdProductId(cartId, productId)
                 .orElseThrow(() -> new ResourceNotFoundException(
@@ -163,10 +162,25 @@ public class CartService {
         if (cartItem.getQuantity() > 1) {
             cartItem.setQuantity(cartItem.getQuantity() - 1);
             cartItemRepository.save(cartItem);
+            return getCart(cartId);
         } else {
             cartItemRepository.delete(cartItem);
-        }
 
-        return getCart(cartId);
+            List<CartItem> remainingItems = cartItemRepository.findByIdCartId(cartId).stream()
+                    .filter(item -> !item.getId().getProductId().equals(productId))
+                    .toList();
+
+            if (remainingItems.isEmpty()) {
+                cartRepository.delete(cart);
+                return CartResponse.builder()
+                        .id(cart.getId())
+                        .createdAt(cart.getCreatedAt())
+                        .items(Collections.emptyList())
+                        .totalPrice(BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP))
+                        .build();
+            } else {
+                return getCart(cartId);
+            }
+        }
     }
 }

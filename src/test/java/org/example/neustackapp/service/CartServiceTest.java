@@ -151,9 +151,8 @@ class CartServiceTest {
                 .quantity(2)
                 .build();
 
-        when(cartRepository.existsById(cartId)).thenReturn(true);
-        when(cartItemRepository.findByIdCartIdAndIdProductId(cartId, 1)).thenReturn(Optional.of(item));
         when(cartRepository.findById(cartId)).thenReturn(Optional.of(cart));
+        when(cartItemRepository.findByIdCartIdAndIdProductId(cartId, 1)).thenReturn(Optional.of(item));
 
         CartItem decremented = CartItem.builder()
                 .id(new CartItemId(cartId, 1))
@@ -165,36 +164,77 @@ class CartServiceTest {
         CartResponse response = cartService.removeItemFromCart(cartId, 1);
 
         verify(cartItemRepository).save(item);
+        verify(cartRepository, never()).delete(any(Cart.class));
         assertThat(item.getQuantity()).isEqualTo(1);
         assertThat(response.getItems().get(0).getQuantity()).isEqualTo(1);
     }
 
     @Test
-    void removeItemFromCart_quantityEqualsOne_deletesRow() {
+    void removeItemFromCart_quantityEqualsOne_cartBecomesEmpty_deletesCart() {
         CartItem item = CartItem.builder()
                 .id(new CartItemId(cartId, 1))
                 .quantity(1)
                 .build();
 
-        when(cartRepository.existsById(cartId)).thenReturn(true);
-        when(cartItemRepository.findByIdCartIdAndIdProductId(cartId, 1)).thenReturn(Optional.of(item));
         when(cartRepository.findById(cartId)).thenReturn(Optional.of(cart));
-        when(cartItemRepository.findByIdCartId(cartId)).thenReturn(Collections.emptyList());
+        when(cartItemRepository.findByIdCartIdAndIdProductId(cartId, 1)).thenReturn(Optional.of(item));
+        when(cartItemRepository.findByIdCartId(cartId)).thenReturn(List.of(item));
 
         CartResponse response = cartService.removeItemFromCart(cartId, 1);
 
         verify(cartItemRepository).delete(item);
+        verify(cartRepository).delete(cart);
         assertThat(response.getItems()).isEmpty();
         assertThat(response.getTotalPrice()).isEqualByComparingTo("0.00");
     }
 
     @Test
+    void removeItemFromCart_quantityEqualsOne_remainingItemsExist_doesNotDeleteCart() {
+        CartItem item1 = CartItem.builder()
+                .id(new CartItemId(cartId, 1))
+                .quantity(1)
+                .build();
+        CartItem item2 = CartItem.builder()
+                .id(new CartItemId(cartId, 2))
+                .quantity(3)
+                .build();
+
+        when(cartRepository.findById(cartId)).thenReturn(Optional.of(cart));
+        when(cartItemRepository.findByIdCartIdAndIdProductId(cartId, 1)).thenReturn(Optional.of(item1));
+        when(cartItemRepository.findByIdCartId(cartId)).thenReturn(List.of(item1, item2), List.of(item2));
+
+        Product product2 = Product.builder()
+                .id(2)
+                .name("OnePlus")
+                .currentUnitPrice(new BigDecimal("2000.00"))
+                .build();
+        when(productRepository.findAllById(List.of(2))).thenReturn(List.of(product2));
+
+        CartResponse response = cartService.removeItemFromCart(cartId, 1);
+
+        verify(cartItemRepository).delete(item1);
+        verify(cartRepository, never()).delete(any(Cart.class));
+        assertThat(response.getItems()).hasSize(1);
+        assertThat(response.getItems().get(0).getProductId()).isEqualTo(2);
+        assertThat(response.getTotalPrice()).isEqualByComparingTo("6000.00");
+    }
+
+    @Test
     void removeItemFromCart_itemNotFound_throwsResourceNotFoundException() {
-        when(cartRepository.existsById(cartId)).thenReturn(true);
+        when(cartRepository.findById(cartId)).thenReturn(Optional.of(cart));
         when(cartItemRepository.findByIdCartIdAndIdProductId(cartId, 99)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> cartService.removeItemFromCart(cartId, 99))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("not found in cart");
+    }
+
+    @Test
+    void removeItemFromCart_cartNotFound_throwsResourceNotFoundException() {
+        when(cartRepository.findById(cartId)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> cartService.removeItemFromCart(cartId, 1))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("Cart with id " + cartId + " not found");
     }
 }
