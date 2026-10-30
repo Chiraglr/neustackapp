@@ -56,6 +56,7 @@ public class OrderCheckoutService {
         Cart cart = cartRepository.findByIdForUpdate(cartId)
                 .orElseThrow(() -> new ResourceNotFoundException("Cart with id " + cartId + " not found."));
 
+        // IDEMPOTENCY CHECK
         if (cart.getOrderId() != null) {
             return getOrder(cart.getOrderId());
         }
