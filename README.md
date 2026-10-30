@@ -13,6 +13,10 @@ A production-grade, highly-reliable RESTful E-Commerce and Rewards engine built 
 
 - [Key Architecture & Features](#-key-architecture--features)
 - [Quick Start](#-quick-start)
+  - [Prerequisites](#1-prerequisites)
+  - [Start the Stack](#2-start-the-stack)
+  - [Access pgAdmin UI & Tables](#3-access-pgadmin-ui--view-database-tables)
+  - [Stop the Stack](#4-stop-the-stack)
 - [pgAdmin Management](#-pgadmin-management)
 - [Database Seed & Reset](#-database-seed--reset)
 - [Testing & Quality Assurance](#-testing--quality-assurance)
@@ -52,7 +56,16 @@ The application will be accessible at:
 - **API Base URL:** `http://localhost:8080`
 - **pgAdmin UI:** `http://localhost:5050`
 
-### 3. Stop the Stack
+### 3. Access pgAdmin UI & View Database Tables
+1. Open your browser and navigate to **[http://localhost:5050](http://localhost:5050)**.
+   > **Note:** Login is bypassed automatically. pgAdmin may take 15–30 seconds to initialize on first launch.
+2. In the left sidebar object tree, expand:
+   - **Servers** ➔ **Postgres (ecommerce_db)** *(connection is pre-authenticated)*
+   - **Databases** ➔ **ecommerce_db**
+   - **Schemas** ➔ **public** ➔ **Tables**
+3. Right-click any table (e.g., `products`, `orders`, `carts`, `discounts`) and select **View/Edit Data** ➔ **All Rows** to view live records.
+
+### 4. Stop the Stack
 To stop and clean up containers and database volumes:
 
 ```bash
