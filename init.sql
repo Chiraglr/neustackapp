@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS discount_coupons (
 CREATE TABLE IF NOT EXISTS orders (
     order_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     total_amount NUMERIC(10, 2) NOT NULL,
+    discount_amount NUMERIC(10, 2) NOT NULL DEFAULT 0.00,
     discount_code_applied INT REFERENCES discount_coupons(id),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

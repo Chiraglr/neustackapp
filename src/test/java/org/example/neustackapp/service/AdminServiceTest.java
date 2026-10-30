@@ -47,16 +47,18 @@ class AdminServiceTest {
         UUID orderId1 = UUID.randomUUID();
         UUID orderId2 = UUID.randomUUID();
 
-        // Orders: totalAmount is post-discount
+        // Orders: totalAmount is post-discount, discountAmount stores exact discount applied
         Order order1 = Order.builder()
                 .orderId(orderId1)
                 .totalAmount(new BigDecimal("90.00"))
+                .discountAmount(new BigDecimal("10.00"))
                 .createdAt(LocalDateTime.now())
                 .build();
 
         Order order2 = Order.builder()
                 .orderId(orderId2)
                 .totalAmount(new BigDecimal("150.00"))
+                .discountAmount(new BigDecimal("20.00"))
                 .createdAt(LocalDateTime.now())
                 .build();
 

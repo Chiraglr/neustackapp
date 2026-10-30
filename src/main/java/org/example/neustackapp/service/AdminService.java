@@ -64,9 +64,11 @@ public class AdminService {
                 .map(Order::getTotalAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        // --- Total discounts granted ---
-        BigDecimal totalDiscounts = grossRevenue.subtract(netRevenue)
-                .max(BigDecimal.ZERO); // guard against floating-point edge cases
+        // --- Total discounts granted: sum of order.discountAmount from orders table ---
+        BigDecimal totalDiscounts = allOrders.stream()
+                .map(order -> order.getDiscountAmount() != null ? order.getDiscountAmount() : BigDecimal.ZERO)
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .setScale(2, RoundingMode.HALF_UP);
 
         // --- Coupon stats ---
         long couponsAvailable = discountCouponRepository.countByIsUsed(false);

@@ -159,6 +159,7 @@ public class OrderCheckoutService {
         // Persist order
         Order order = Order.builder()
                 .totalAmount(netTotal)
+                .discountAmount(discountAmount)
                 .discountCodeApplied(appliedCouponId)
                 .createdAt(LocalDateTime.now())
                 .build();
@@ -250,9 +251,9 @@ public class OrderCheckoutService {
         BigDecimal netTotal = order.getTotalAmount() != null
                 ? order.getTotalAmount().setScale(2, RoundingMode.HALF_UP)
                 : grossTotal;
-        BigDecimal discountAmount = grossTotal.subtract(netTotal)
-                .max(BigDecimal.ZERO)
-                .setScale(2, RoundingMode.HALF_UP);
+        BigDecimal discountAmount = order.getDiscountAmount() != null
+                ? order.getDiscountAmount().setScale(2, RoundingMode.HALF_UP)
+                : grossTotal.subtract(netTotal).max(BigDecimal.ZERO).setScale(2, RoundingMode.HALF_UP);
 
         return OrderResponse.builder()
                 .orderId(order.getOrderId())

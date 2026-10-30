@@ -247,6 +247,7 @@ class OrderCheckoutServiceTest {
         Order order = Order.builder()
                 .orderId(orderId)
                 .totalAmount(new BigDecimal("1800.00"))
+                .discountAmount(new BigDecimal("200.00"))
                 .discountCodeApplied(101)
                 .createdAt(LocalDateTime.now())
                 .build();
