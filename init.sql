@@ -76,32 +76,3 @@ VALUES
     (7, 10),
     (8, 1)
 ON CONFLICT (id) DO NOTHING;
-
-----------------------------------
-
-APIs
-
-POST /product_inventory_view  {[product_ids...]} - status of products and inventory
-
-GET /cart_view/{cart_id} - returns cart details, prices and totals
-
-GET /create_cart/{product_id} - creates cart, add item, return cart_id(200), message if not available
-
-GET /add_product_to_cart/{product_id}/{cart_id} - adds item, returns cart_id(200), message if not available
-
-GET /remove_product_from_cart/{product_id}/{cart_id} - removes 1 item, returns 200, message if failed
-
-***GET /checkout/{cart_id}/{coupon_id} - validates cart and creates an order, return order details(200), message if failed
-
-GET /coupons - returns active coupons(200), message if failed
-
-POST /generate_coupon - generate coupon
-
-GET /admin_summary
-
-
-
-
-
-
-
