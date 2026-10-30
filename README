@@ -1,9 +1,12 @@
 # Neustack E-Commerce Application
 
-`docker compose up --build` to start the database and application containers, data will be seeded using init.sql
+`docker compose up --build` to start database, application and pgadmin containers, data will be seeded using init.sql
 
 `docker compose down -v` to stop the containers.
 
 `python3 test_api.py` runs API tests when the containers are up. This must be run before any APIs are called else it may fail because of changes in database.
 
 `spring-boot-collection.postman_collection.json` - import into postman to use the API's when the containers are running.
+
+pgAdmin is available at `http://localhost:5050`. Login is bypassed (`PGADMIN_CONFIG_SERVER_MODE: "False"`), and the database server connection is automatically pre-configured and authenticated via `servers.json` and `pgpass`.
+It takes a while for pgAdmin to startup.
