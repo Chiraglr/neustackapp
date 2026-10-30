@@ -20,6 +20,9 @@ public class CartResponse {
     @JsonProperty("id")
     private UUID id;
 
+    @JsonProperty("order_id")
+    private UUID orderId;
+
     @JsonProperty("created_at")
     private LocalDateTime createdAt;
 

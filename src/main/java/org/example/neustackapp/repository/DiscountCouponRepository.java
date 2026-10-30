@@ -23,10 +23,6 @@ public interface DiscountCouponRepository extends JpaRepository<DiscountCoupon, 
     long countByIsUsed(Boolean isUsed);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("SELECT d FROM DiscountCoupon d WHERE d.code = :code")
-    Optional<DiscountCoupon> findByCodeForUpdate(@Param("code") String code);
-
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT d FROM DiscountCoupon d WHERE d.id = :id")
     Optional<DiscountCoupon> findByIdForUpdate(@Param("id") Integer id);
 }

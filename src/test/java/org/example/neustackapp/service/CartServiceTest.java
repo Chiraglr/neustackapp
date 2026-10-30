@@ -3,6 +3,7 @@ package org.example.neustackapp.service;
 import org.example.neustackapp.dto.AddCartItemRequest;
 import org.example.neustackapp.dto.CartResponse;
 import org.example.neustackapp.exception.InsufficientInventoryException;
+import org.example.neustackapp.exception.InvalidCartOperationException;
 import org.example.neustackapp.exception.ResourceNotFoundException;
 import org.example.neustackapp.model.*;
 import org.example.neustackapp.repository.CartItemRepository;
@@ -236,5 +237,26 @@ class CartServiceTest {
         assertThatThrownBy(() -> cartService.removeItemFromCart(cartId, 1))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("Cart with id " + cartId + " not found");
+    }
+
+    @Test
+    void addItemToCart_whenCartAlreadyCheckedOut_throwsInvalidCartOperationException() {
+        cart.setOrderId(UUID.randomUUID());
+        when(cartRepository.findById(cartId)).thenReturn(Optional.of(cart));
+
+        AddCartItemRequest request = new AddCartItemRequest(1, 1);
+        assertThatThrownBy(() -> cartService.addItemToCart(cartId, request))
+                .isInstanceOf(InvalidCartOperationException.class)
+                .hasMessageContaining("Cannot modify a cart that has already been checked out");
+    }
+
+    @Test
+    void removeItemFromCart_whenCartAlreadyCheckedOut_throwsInvalidCartOperationException() {
+        cart.setOrderId(UUID.randomUUID());
+        when(cartRepository.findById(cartId)).thenReturn(Optional.of(cart));
+
+        assertThatThrownBy(() -> cartService.removeItemFromCart(cartId, 1))
+                .isInstanceOf(InvalidCartOperationException.class)
+                .hasMessageContaining("Cannot modify a cart that has already been checked out");
     }
 }

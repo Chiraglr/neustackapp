@@ -57,6 +57,7 @@ public class CartService {
         if (cartItems.isEmpty()) {
             return CartResponse.builder()
                     .id(cart.getId())
+                    .orderId(cart.getOrderId())
                     .createdAt(cart.getCreatedAt())
                     .items(Collections.emptyList())
                     .totalPrice(BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP))
@@ -96,6 +97,7 @@ public class CartService {
 
         return CartResponse.builder()
                 .id(cart.getId())
+                .orderId(cart.getOrderId())
                 .createdAt(cart.getCreatedAt())
                 .items(itemResponses)
                 .totalPrice(total.setScale(2, RoundingMode.HALF_UP))
@@ -106,6 +108,10 @@ public class CartService {
     public CartResponse addItemToCart(UUID cartId, AddCartItemRequest request) {
         Cart cart = cartRepository.findById(cartId)
                 .orElseThrow(() -> new ResourceNotFoundException("Cart with id " + cartId + " not found."));
+
+        if (cart.getOrderId() != null) {
+            throw new InvalidCartOperationException("Cannot modify a cart that has already been checked out.");
+        }
 
         if (request == null || request.getProductId() == null) {
             throw new InvalidCartOperationException("Product id is required.");
@@ -153,6 +159,10 @@ public class CartService {
     public CartResponse removeItemFromCart(UUID cartId, Integer productId) {
         Cart cart = cartRepository.findById(cartId)
                 .orElseThrow(() -> new ResourceNotFoundException("Cart with id " + cartId + " not found."));
+
+        if (cart.getOrderId() != null) {
+            throw new InvalidCartOperationException("Cannot modify a cart that has already been checked out.");
+        }
 
         CartItem cartItem = cartItemRepository.findByIdCartIdAndIdProductId(cartId, productId)
                 .orElseThrow(() -> new ResourceNotFoundException(

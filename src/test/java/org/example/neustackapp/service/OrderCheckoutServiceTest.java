@@ -92,7 +92,7 @@ class OrderCheckoutServiceTest {
 
     @Test
     void checkout_happyPathWithoutCoupon_createsOrderAndDeductsInventory() {
-        when(cartRepository.findById(cartId)).thenReturn(Optional.of(cart));
+        when(cartRepository.findByIdForUpdate(cartId)).thenReturn(Optional.of(cart));
         when(cartItemRepository.findByIdCartId(cartId)).thenReturn(List.of(cartItem1));
         when(productRepository.findAllById(List.of(1))).thenReturn(List.of(product1));
         when(inventoryRepository.findByIdForUpdate(1)).thenReturn(Optional.of(inventory1));
@@ -123,15 +123,53 @@ class OrderCheckoutServiceTest {
                 c.getDiscountPercentage() == 10 && c.getMaxLimit() == 100 && !c.getIsUsed() && c.getCode().startsWith("REWARD10-")
         ));
 
-        // Verify cart cleaned up
-        verify(cartItemRepository).deleteAll(List.of(cartItem1));
-        verify(cartRepository).delete(cart);
+        // Verify cart updated with order_id (not deleted)
+        verify(cartRepository).save(cart);
+        assertThat(cart.getOrderId()).isEqualTo(response.getOrderId());
+        verify(cartRepository, never()).delete(any());
+        verify(cartItemRepository, never()).deleteAll(any());
+    }
+
+    @Test
+    void checkout_whenCartAlreadyHasOrderId_returnsExistingOrderWithoutDuplicateCheckout() {
+        UUID existingOrderId = UUID.randomUUID();
+        cart.setOrderId(existingOrderId);
+
+        Order existingOrder = Order.builder()
+                .orderId(existingOrderId)
+                .totalAmount(new BigDecimal("1800.00"))
+                .discountCodeApplied(101)
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        OrderItem item = OrderItem.builder()
+                .id(new OrderItemId(existingOrderId, 1))
+                .quantity(2)
+                .purchasedUnitPrice(new BigDecimal("1000.00"))
+                .build();
+
+        when(cartRepository.findByIdForUpdate(cartId)).thenReturn(Optional.of(cart));
+        when(orderRepository.findById(existingOrderId)).thenReturn(Optional.of(existingOrder));
+        when(orderItemRepository.findByIdOrderId(existingOrderId)).thenReturn(List.of(item));
+        when(productRepository.findAllById(List.of(1))).thenReturn(List.of(product1));
+
+        CheckoutRequest request = new CheckoutRequest(cartId, null);
+        OrderResponse response = orderCheckoutService.checkout(request);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getOrderId()).isEqualTo(existingOrderId);
+        assertThat(response.getTotalAmount()).isEqualByComparingTo("1800.00");
+
+        // Verify no new order was created and no inventory was deducted
+        verify(inventoryRepository, never()).save(any());
+        verify(orderRepository, never()).save(any());
+        verify(cartRepository, never()).delete(any());
     }
 
     @Test
     void checkout_withValidCoupon_appliesDiscountCappedAtMaxLimit() {
         // Gross = 2 * 1000 = 2000. Discount 10% = 200. Max limit = 500. So discount = 200. Total = 1800.
-        when(cartRepository.findById(cartId)).thenReturn(Optional.of(cart));
+        when(cartRepository.findByIdForUpdate(cartId)).thenReturn(Optional.of(cart));
         when(cartItemRepository.findByIdCartId(cartId)).thenReturn(List.of(cartItem1));
         when(discountCouponRepository.findByIdForUpdate(101)).thenReturn(Optional.of(coupon1));
         when(productRepository.findAllById(List.of(1))).thenReturn(List.of(product1));
@@ -159,7 +197,7 @@ class OrderCheckoutServiceTest {
     @Test
     void checkout_withAlreadyUsedCoupon_throwsInvalidCartOperationException() {
         coupon1.setIsUsed(true);
-        when(cartRepository.findById(cartId)).thenReturn(Optional.of(cart));
+        when(cartRepository.findByIdForUpdate(cartId)).thenReturn(Optional.of(cart));
         when(cartItemRepository.findByIdCartId(cartId)).thenReturn(List.of(cartItem1));
         when(discountCouponRepository.findByIdForUpdate(101)).thenReturn(Optional.of(coupon1));
 
@@ -176,7 +214,7 @@ class OrderCheckoutServiceTest {
     @Test
     void checkout_withInsufficientInventory_throwsExceptionAndRollsBack() {
         inventory1.setAvailableInventory(1); // Cart needs 2
-        when(cartRepository.findById(cartId)).thenReturn(Optional.of(cart));
+        when(cartRepository.findByIdForUpdate(cartId)).thenReturn(Optional.of(cart));
         when(cartItemRepository.findByIdCartId(cartId)).thenReturn(List.of(cartItem1));
         when(productRepository.findAllById(List.of(1))).thenReturn(List.of(product1));
         when(inventoryRepository.findByIdForUpdate(1)).thenReturn(Optional.of(inventory1));
@@ -193,7 +231,7 @@ class OrderCheckoutServiceTest {
 
     @Test
     void checkout_emptyCart_throwsInvalidCartOperationException() {
-        when(cartRepository.findById(cartId)).thenReturn(Optional.of(cart));
+        when(cartRepository.findByIdForUpdate(cartId)).thenReturn(Optional.of(cart));
         when(cartItemRepository.findByIdCartId(cartId)).thenReturn(Collections.emptyList());
 
         CheckoutRequest request = new CheckoutRequest(cartId, null);

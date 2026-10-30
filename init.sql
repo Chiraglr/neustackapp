@@ -10,20 +10,6 @@ CREATE TABLE IF NOT EXISTS inventory (
     available_inventory INT NOT NULL CHECK (available_inventory > -1)
 );
 
--- 2. Carts (Identified by a unique token/UUID, no user required)
-CREATE TABLE IF NOT EXISTS carts (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- 3. Cart Items (Products inside a specific cart)
-CREATE TABLE IF NOT EXISTS cart_items (
-    cart_id UUID REFERENCES carts(id) ON DELETE CASCADE,
-    product_id INT REFERENCES products(id),
-    quantity INT NOT NULL CHECK (quantity > 0),
-    PRIMARY KEY (cart_id, product_id)
-);
-
 -- 5. Coupons / Discounts
 CREATE TABLE IF NOT EXISTS discount_coupons (
     id SERIAL PRIMARY KEY,
@@ -47,6 +33,21 @@ CREATE TABLE IF NOT EXISTS order_items (
     quantity INT NOT NULL CHECK (quantity > 0),
     purchased_unit_price NUMERIC(10, 2) NOT NULL CHECK (purchased_unit_price > 0),
     PRIMARY KEY (order_id, product_id)
+);
+
+-- 2. Carts (Identified by a unique token/UUID, no user required)
+CREATE TABLE IF NOT EXISTS carts (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    order_id UUID UNIQUE REFERENCES orders(order_id),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 3. Cart Items (Products inside a specific cart)
+CREATE TABLE IF NOT EXISTS cart_items (
+    cart_id UUID REFERENCES carts(id) ON DELETE CASCADE,
+    product_id INT REFERENCES products(id),
+    quantity INT NOT NULL CHECK (quantity > 0),
+    PRIMARY KEY (cart_id, product_id)
 );
 
 -- --- SEED DATA ---

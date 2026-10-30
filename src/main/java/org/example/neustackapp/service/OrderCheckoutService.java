@@ -53,8 +53,12 @@ public class OrderCheckoutService {
         }
 
         UUID cartId = request.getCartId();
-        Cart cart = cartRepository.findById(cartId)
+        Cart cart = cartRepository.findByIdForUpdate(cartId)
                 .orElseThrow(() -> new ResourceNotFoundException("Cart with id " + cartId + " not found."));
+
+        if (cart.getOrderId() != null) {
+            return getOrder(cart.getOrderId());
+        }
 
         List<CartItem> cartItems = cartItemRepository.findByIdCartId(cartId);
         if (cartItems.isEmpty()) {
@@ -176,9 +180,9 @@ public class OrderCheckoutService {
             orderItemRepository.save(orderItem);
         }
 
-        // Delete cart and its items
-        cartItemRepository.deleteAll(cartItems);
-        cartRepository.delete(cart);
+        // Update cart with the created order_id
+        cart.setOrderId(savedOrder.getOrderId());
+        cartRepository.save(cart);
 
         if (orderRepository.count() / discountGenerationFactor > discountCouponRepository.count()) {
             // Generate a reward coupon (10% discount, max limit up to 100)

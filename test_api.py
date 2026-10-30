@@ -291,14 +291,14 @@ def scenario2_twenty_orders():
         else:
             ok(f"  Order placed without coupon. gross={gross:.2f}, discount={discount:.2f}, net={net:.2f}")
 
-        # ── Assert: cart deleted after checkout ──────────────────────────────
-        r = api_get_cart(cart_id)
-        if r.status_code != 404:
+        # ── Assert: idempotent checkout returns same order ───────────────────
+        retry_order = api_checkout(cart_id, coupon_id=coupon_id)
+        if retry_order.get("order_id") != order_id:
             fail(
-                f"  Cart {cart_id} still exists after checkout!\n"
-                f"  Expected 404, got {r.status_code}."
+                f"  Idempotent checkout retry failed for cart {cart_id}!\n"
+                f"  Expected existing order_id {order_id}, got {retry_order.get('order_id')}."
             )
-        ok("  Cart deleted after checkout ✓")
+        ok(f"  Idempotent checkout retry verified (returned same order_id: {order_id}) ✓")
 
         # ── Assert: inventory decremented correctly ───────────────────────────
         expected_inv = running_inventory[product_id] - qty_per_order

@@ -23,6 +23,9 @@ public class Cart {
     @Column(name = "id", updatable = false, nullable = false)
     private UUID id;
 
+    @Column(name = "order_id", unique = true)
+    private UUID orderId;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
