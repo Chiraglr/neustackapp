@@ -34,6 +34,48 @@
 
 ---
 
+## 💰 Money and Rounding Rules
+
+* **Why `BigDecimal` over `float`/`double`?** Floating-point types cause binary precision loss (e.g. `1.00 - 0.90 = 0.09999999999999998`). `BigDecimal` and PostgreSQL `decimal(10,2)` ensure exact monetary calculations.
+* **Rounding:** All currency calculations enforce 2 decimal places with `RoundingMode.HALF_UP` (standard commercial rounding) to prevent fractional penny errors.
+* **Initialization:** Instantiated via `new BigDecimal("...")` or `BigDecimal.valueOf(...)`, never from raw `double` literals.
+
+---
+
+## ⚖️ What Was Implemented Versus Intentionally Deferred
+
+* **Authentication & Authorization:** User auth was not required, so it was deferred.
+* **Inventory Restocking:** APIs to add to inventory were deferred as they were out of scope. Only APIs to view and decrement inventory were added.
+* **Database Indexes:** Indexes were deferred as they are not needed for an initial MVP.
+* **Product Catalog:** Detailed product metadata/catalog information was deferred.
+
+---
+
+## 🚀 How the Design Would Evolve for Multiple Service Instances and Production Scale
+
+* **State & Concurrency:** All state lives in Postgres. Transaction management prevents atomicity bugs, and pessimistic locking prevents concurrency race conditions. The core architecture will operate safely across multiple service instances.
+* **Performance Optimizations:** Under heavy production load, query performance would need enhancements like database indexes on foreign keys, connection pooling tuning, and caching (e.g. Redis).
+* **Nth-Order Reward Generation:** Currently evaluated via an order count query. At scale, concurrent orders could trigger duplicate coupon issuance; this would be solved by using a dedicated atomic counter table or Postgres sequence read with locks.
+
+---
+
+## 🤖 How AI Tools Were Used (Redirects and Corrections)
+
+* **Architecture & Boilerplate:** Used AI tools to scaffold boilerplate code after designing the required API contracts and directing AI on the exact endpoints to code.
+* **Idempotency Enforcement:** AI did not add idempotency checks initially; I redirected it by specifying the exact logic and checkout checks to prevent duplicate orders on repeated cart requests.
+* **Verification:** Audited all generated code to verify `@Transactional` boundaries and pessimistic row locking (`@Lock(LockModeType.PESSIMISTIC_WRITE)`).
+* **Automated Bug Simulation:** Directed AI to generate automated test scripts to validate transaction rollback, concurrency, and idempotency. I also verified these by simulating the bugs directly (removing locks/checks) to confirm the tests successfully caught the failures.
+
+---
+
+## ⏱️ What to Examine First If Given Another Two Hours
+
+* Run exploratory end-to-end edge-case testing against all service APIs to identify unhandled corner cases.
+* Write additional granular integration tests focused on negative scenarios (e.g., malformed payloads, non-existent coupon IDs, extreme cart quantities).
+* Profile slow queries and add optimal database indexing on foreign keys and lookup columns.
+
+---
+
 ## ⚙️ Transaction, Concurrency, and Idempotency Strategy
 
 ### 1. Transaction Management
