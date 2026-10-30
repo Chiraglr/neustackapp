@@ -97,6 +97,8 @@ class OrderCheckoutServiceTest {
         when(productRepository.findAllById(List.of(1))).thenReturn(List.of(product1));
         when(inventoryRepository.findByIdForUpdate(1)).thenReturn(Optional.of(inventory1));
         when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(orderRepository.count()).thenReturn(5L);
+        when(discountCouponRepository.count()).thenReturn(0L);
 
         CheckoutRequest request = new CheckoutRequest(cartId, null);
         OrderResponse response = orderCheckoutService.checkout(request);
@@ -135,6 +137,8 @@ class OrderCheckoutServiceTest {
         when(productRepository.findAllById(List.of(1))).thenReturn(List.of(product1));
         when(inventoryRepository.findByIdForUpdate(1)).thenReturn(Optional.of(inventory1));
         when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(orderRepository.count()).thenReturn(5L);
+        when(discountCouponRepository.count()).thenReturn(0L);
 
         CheckoutRequest request = new CheckoutRequest(cartId, 101);
         OrderResponse response = orderCheckoutService.checkout(request);
