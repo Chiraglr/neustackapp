@@ -13,3 +13,8 @@ It takes a while for pgAdmin to startup.
 
 `./reset_db.sh` - resets the database to initial seed values (truncates transactional tables and resets inventory counts) without restarting containers.
 If viewing tables in pgAdmin, press F5 (or the Refresh button) to reload the view.
+
+### Transaction, Concurrency & Idempotency Test Scripts
+- `python3 test_transaction_rollback.py` - tests mid-flight failure atomicity: verifies that if an order fails halfway through (e.g., one item runs out of stock), prior deductions roll back completely without leaking inventory.
+- `python3 test_concurrency_locks.py` - tests race conditions and pessimistic locking: fires 20 simultaneous checkouts on 10 available stock units to prove no overselling or negative stock occurs.
+- `python3 test_idempotency.py` - tests duplicate requests and checkout idempotency: fires multiple simultaneous requests on the exact same cart to verify deduplication, identical order ID return, and single inventory deduction.
